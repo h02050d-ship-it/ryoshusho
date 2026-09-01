@@ -6,7 +6,7 @@
 <link rel="dns-prefetch" href="https://script.google.com">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>領収書デスク｜林材木店</title>
+<title>領収書発行ツール｜林材木店</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23b91c1c'/%3E%3Ctext x='50' y='79' font-size='82' text-anchor='middle' fill='%23fff' font-family='sans-serif' font-weight='bold'%3E領%3C/text%3E%3C/svg%3E">
 <style>
 :root{
@@ -128,7 +128,7 @@ button.sec:hover{background:#f9fafb;}
 <body>
 
 <div id="hdr">
-  <h1>🧾 領収書デスク</h1>
+  <h1>🧾 領収書発行ツール</h1>
   <span id="srcBadge">● 読込中…</span>
   <div class="sp"></div>
   <a class="hbtn" id="folderLink" target="_blank" style="display:none">📁 領収書PDF</a>
@@ -166,10 +166,10 @@ button.sec:hover{background:#f9fafb;}
         <div><label class="fl">支払方法</label>
           <select id="f-pay"><option>現金</option><option>銀行振込</option><option>クレジットカード</option><option>その他</option></select>
         </div>
-        <div><label class="fl">渡し方 <span style="color:#059669;font-weight:700">← PDF推奨</span></label>
+        <div><label class="fl">渡し方 <span style="color:#059669;font-weight:700">← データ推奨</span></label>
           <select id="f-deliver">
-            <option value="pdf">✅ PDF・メールで送る（印紙代0円・おすすめ）</option>
-            <option value="paper">🖨 紙で手渡し・郵送する（印紙代がかかる）</option>
+            <option value="pdf">✅ データ（PDF）で送る　ラク・印紙代0円</option>
+            <option value="paper">🖨 紙で手渡し・郵送する　印紙代がかかる</option>
           </select>
         </div>
       </div>
@@ -182,11 +182,12 @@ button.sec:hover{background:#f9fafb;}
         <button class="sec" onclick="clearForm()">クリア</button>
       </div>
       <div id="guide">
-        <b>📌 なるべくPDFで送ってください（会社のルール）</b>
+        <b>📌 基本は「データ（PDF）で送る」でお願いします</b>
         <ul>
-          <li><b>PDFをメールで送れば収入印紙は1円もかかりません。</b>紙で渡すと5万円以上（税抜）から印紙代がかかります（例：25万円の領収書なら200円、300万円なら600円）。</li>
-          <li>ネット販売（ヤフー・楽天）のお客様は<b>必ずPDF</b>でお願いします。印紙は不要です。</li>
-          <li>お客様に「紙でほしい」と言われたときだけ、渡し方を「紙」にして印刷してください。</li>
+          <li><b>データで送るほうがラクです。</b>印刷・押印・封筒・切手・投函がぜんぶ不要で、発行ボタンひとつでPDFができてメールに添付するだけです。</li>
+          <li><b>しかも収入印紙が1円もかかりません。</b>紙で渡すと5万円以上（税抜）から印紙代がかかります（例：25万円なら200円、300万円なら600円）。</li>
+          <li>ネット販売（ヤフー・楽天）のお客様は<b>必ずデータ</b>でお願いします。</li>
+          <li>紙にするのは、お客様から「紙でほしい」と言われたときだけです。</li>
           <li>控えは自動でデータベースとDriveのPDFに残ります。<b>紙の控えを保管する必要はありません。</b></li>
         </ul>
       </div>
@@ -237,15 +238,15 @@ button.sec:hover{background:#f9fafb;}
   <p>紙で渡す領収書なので、<b>この領収書には収入印紙を貼って割印</b>をしてください。</p>
   <div id="inshiBig"></div>
   <p id="inshiWhy" style="color:#6b7280"></p>
-  <div class="tip">💡 <b>PDFをメールで送れば、この印紙代はかかりません。</b>お客様が紙にこだわらないなら、PDFでの送付をおすすめします。</div>
+  <div class="tip">💡 <b>データ（PDF）で送れば、この印紙代はかかりません。</b>印刷も郵送も不要でラクなので、お客様が紙にこだわらないならデータ送付をおすすめします。</div>
   <div id="inshiBtns">
-    <button id="btnToPdf" onclick="switchToPdf()">PDFで送る（印紙0円）</button>
+    <button id="btnToPdf" onclick="switchToPdf()">データで送る（印紙0円）</button>
     <button id="btnGoPaper" onclick="closeInshi(true)">紙のまま発行する</button>
   </div>
 </div></div>
 
 <div id="gate"><div id="gateBox">
-  <h2>🧾 領収書デスク｜ログイン</h2>
+  <h2>🧾 領収書発行ツール｜ログイン</h2>
   <div id="gateErr"></div>
   <input id="gateMail" type="email" placeholder="メールアドレス" autocomplete="username">
   <input id="gatePass" type="password" placeholder="パスワード" autocomplete="current-password">
@@ -383,10 +384,10 @@ function renderSheet(){
   const showInshi=amount>0&&stamp!==0&&isPaper&&!isCredit;
   if(showInshi){
     box.className="need";
-    box.innerHTML="⚠ <b>収入印紙"+(stamp<0?"（1,000万円超・金額要確認）":"（"+stamp+"円）")+"を貼ってください</b>（税抜"+yen(taxEx)+"で判定）。PDFで送るなら不要です。";
+    box.innerHTML="⚠ <b>収入印紙"+(stamp<0?"（1,000万円超・金額要確認）":"（"+stamp+"円）")+"を貼ってください</b>（税抜"+yen(taxEx)+"で判定）。データで送れば不要です。";
   } else if(amount>0&&stamp!==0&&!isPaper){
     box.className="free";
-    box.textContent="PDF交付なので収入印紙は不要です（ネット販売・メール送付はこちら）。";
+    box.textContent="データ（PDF）交付なので収入印紙は不要です。ネット販売・メール送付はこちらでOKです。";
   } else if(amount>0&&stamp!==0&&isCredit){
     box.className="free";
     box.textContent="クレジットカード払いなので収入印紙は不要です（但し書きにカード利用と明記されます）。";
@@ -481,7 +482,7 @@ function askInshi(){
 function closeInshi(go){ $("inshiOv").style.display="none"; if(inshiResolve){ inshiResolve(go); inshiResolve=null; } }
 function switchToPdf(){
   $("f-deliver").value="pdf"; renderSheet();
-  toast("PDF送付に切り替えました（印紙は不要です）");
+  toast("データ送付に切り替えました（印紙は不要です）");
   closeInshi(true);
 }
 
