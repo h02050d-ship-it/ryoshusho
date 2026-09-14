@@ -493,6 +493,30 @@ async function issue(){
   const to=$("f-to").value.trim();
   if(!to){ toast("宛名を入力してください"); $("f-to").focus(); return; }
   if(!amount){ toast("金額を入力してください"); $("f-amount").focus(); return; }
+  // (R-4)(R-6) 二重発行・桁違いを発行前に止める。呼出中の同じNo.の再発行（CUR_NO）は自分自身を除外。
+  // 手元のROWSが空（未読込）なら判定できないので通す（fail-open）。
+  try{
+    const normTo=s=>String(s||"").replace(/\s/g,"").replace(/㈱|\(株\)|（株）|株式会社/g,"").replace(/㈲|\(有\)|（有）|有限会社/g,"").trim();
+    const dayOf=v=>{ const m=String(v||"").match(/(\d{4})\D(\d{1,2})\D(\d{1,2})/); return m? new Date(+m[1],+m[2]-1,+m[3]).getTime() : NaN; };
+    const me=normTo(to);
+    const base=dayOf($("f-date").value) || Date.now();
+    const same=ROWS.filter(r=>r.status!=="取消" && String(r.no)!==String(CUR_NO||"") && normTo(r.customer)===me && normTo(r.customer)!=="");
+    // (R-4) 同じ宛名・同額が180日以内にある
+    const dup=same.find(r=>Number(r.amount)===amount && Math.abs(base-dayOf(r.date))<=180*86400000);
+    if(dup){
+      const m=String(dup.date||"").match(/(\d{4})\D(\d{1,2})\D(\d{1,2})/); const when=m? (+m[2])+"月"+(+m[3])+"日" : String(dup.date||"");
+      if(!confirm("⚠️ 同じ宛名・同額の領収書が既にあります（No."+dup.no+" "+when+"）。二重発行ではありませんか？\n\n「OK」＝二重ではない・発行する\n「キャンセル」＝戻る")) return;
+    }
+    // (R-6) 同じ宛名の直近の金額と10倍以上／1/10以下なら桁違いの疑い
+    const last=same.slice().sort((a,b)=>(dayOf(b.date)||0)-(dayOf(a.date)||0))[0];
+    if(last && Number(last.amount)>0 && (amount>=Number(last.amount)*10 || amount<=Number(last.amount)/10)){
+      if(!confirm("⚠️ 金額の桁を確認してください。同じ宛名の直近（No."+last.no+"）は "+yen(last.amount)+" ですが、今回は "+yen(amount)+" です。\n\n「OK」＝この金額で発行\n「キャンセル」＝戻る")) return;
+    }
+    // (R-6) 10円未満・1,000万円超も確認
+    if(amount<10 || amount>10000000){
+      if(!confirm("⚠️ 金額 "+yen(amount)+" は"+(amount<10?"10円未満":"1,000万円超")+"です。桁を確認してください。\n\n「OK」＝この金額で発行\n「キャンセル」＝戻る")) return;
+    }
+  }catch(e){ console.log("dup/amount check error", e); }
   if(needInshi()){ const go=await askInshi(); if(!go) return; }
   const btn=$("btnIssue"); btn.disabled=true; btn.textContent="発行中…";
   try{
